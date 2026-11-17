@@ -1,14 +1,206 @@
-/* Foco claro e de alto contraste para navegação via teclado */
-a:focus-visible, button:focus-visible, input:focus-visible {
-  outline: 3px solid #005FCC;
-  outline-offset: 3px;
+/* Variáveis de Cores e Tipografia */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #111111;
+    --primary-color: #005a9c;
+    --primary-text: #ffffff;
+    --border-color: #333333;
+    --focus-outline: #ff9900;
+    --highlight-bg: #eef6fc;
+    --danger-bg: #b30000;
+    --danger-text: #ffffff;
+    --font-size-base: 20px;
 }
 
-/* Desativa animações se o usuário preferir menos movimento */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+/* Tema de Alto Contraste (Preto e Amarelo) */
+body.high-contrast {
+    --bg-color: #000000;
+    --text-color: #ffff00;
+    --primary-color: #ffff00;
+    --primary-text: #000000;
+    --border-color: #ffff00;
+    --focus-outline: #00ffff;
+    --highlight-bg: #222200;
+    --danger-bg: #ff3333;
+    --danger-text: #000000;
 }
+
+/* Configurações Gerais */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 950px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Foco altamente visível para navegação por teclado (Tecla Tab) */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 4px solid var(--focus-outline);
+    outline-offset: 4px;
+}
+
+/* Link de Atalho ("Pular para a receita") */
+.skip-link {
+    position: absolute;
+    top: -120px;
+    left: 10px;
+    background-color: var(--primary-color);
+    color: var(--primary-text);
+    padding: 15px 20px;
+    z-index: 1000;
+    font-weight: bold;
+    text-decoration: none;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.skip-link:focus {
+    top: 15px;
+}
+
+/* Barra de Ferramentas de Acessibilidade */
+.accessibility-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid var(--border-color);
+    margin-bottom: 25px;
+}
+
+/* Botões Amplos e Fáceis de Clicar */
+button {
+    background-color: var(--primary-color);
+    color: var(--primary-text);
+    border: 2px solid var(--border-color);
+    padding: 14px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    min-height: 50px; /* Garante área mínima de toque */
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button.ativo-voz {
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+    border-color: var(--border-color);
+}
+
+/* Campos de Seleção e Formulário */
+label {
+    display: inline-block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input,
+select,
+textarea {
+    font-size: 1em;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border-radius: 6px;
+    width: 100%;
+    max-width: 500px;
+    min-height: 50px;
+}
+
+/* Seções e Cartões de Conteúdo */
+section {
+    border: 2px solid var(--border-color);
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+h1, h2, h3 {
+    line-height: 1.3;
+    margin-top: 0;
+}
+
+/* Listas de Ingredientes e Passos */
+ul, ol {
+    padding-left: 25px;
+}
+
+li {
+    margin-bottom: 20px;
+}
+
+/* Destaque Visual para o Passo Atual em Leitura */
+.passo-atual {
+    background-color: var(--highlight-bg);
+    padding: 18px;
+    border-left: 8px solid var(--primary-color);
+    border-radius: 6px;
+}
+
+/* Agrupamento de Botões */
+.controls-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+/* Exibição do Timer */
+#timer-display {
+    font-size: 2.2em;
+    font-weight: bold;
+    margin: 15px 0;
+    letter-spacing: 2px;
+}
+
+/* Caixa de Status do Microfone */
+.status-voz {
+    margin-top: 15px;
+    font-weight: bold;
+    padding: 14px;
+    border: 2px dashed var(--border-color);
+    border-radius: 6px;
+}
+
+/* Classe exclusiva para Leitores de Tela (NVDA, VoiceOver, TalkBack) */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Responsividade para Telas Menores */
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+

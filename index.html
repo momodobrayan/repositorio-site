@@ -1,27 +1,267 @@
 <!DOCTYPE html>
-<html lang="pt-BR"> <!-- Define o idioma para a pronúncia correta do leitor -->
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cozinha Acessível - Receitas por Voz</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #111111;
+            --primary-color: #005a9c;
+            --primary-text: #ffffff;
+            --border-color: #333333;
+            --focus-outline: #ff9900;
+            --highlight-bg: #eef6fc;
+            --font-size-base: 20px;
+        }
+
+        body.high-contrast {
+            --bg-color: #000000;
+            --text-color: #ffff00;
+            --primary-color: #ffff00;
+            --primary-text: #000000;
+            --border-color: #ffff00;
+            --focus-outline: #00ffff;
+            --highlight-bg: #222200;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: var(--font-size-base);
+            line-height: 1.6;
+            margin: 0 auto;
+            padding: 20px;
+            max-width: 950px;
+        }
+
+        a:focus, button:focus, input:focus, select:focus {
+            outline: 4px solid var(--focus-outline);
+            outline-offset: 4px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 10px;
+            background: var(--primary-color);
+            color: var(--primary-text);
+            padding: 15px;
+            z-index: 100;
+            font-weight: bold;
+        }
+        .skip-link:focus { top: 10px; }
+
+        .accessibility-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--primary-text);
+            border: 2px solid var(--border-color);
+            padding: 12px 18px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        button.ativo-voz {
+            background-color: #b30000;
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        input, select {
+            font-size: 1em;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border-radius: 6px;
+            width: 100%;
+            max-width: 450px;
+            margin-top: 8px;
+        }
+
+        section {
+            border: 2px solid var(--border-color);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .passo-atual {
+            background-color: var(--highlight-bg);
+            padding: 15px;
+            border-left: 6px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        li { margin-bottom: 18px; }
+
+        .controls-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        #timer-display {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .status-voz {
+            margin-top: 10px;
+            font-weight: bold;
+            padding: 10px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+        }
+    </style>
+</head>
 <body>
-  <a href="#conteudo-principal" class="skip-link">Pular para o conteúdo principal</a>
 
-  <header>
-    <nav aria-label="Menu Principal">
-      <ul>
-        <li><a href="/">Início</a></li>
-        <li><a href="/servicos">Serviços</a></li>
-      </ul>
-    </nav>
-  </header>
+    <a href="#receita-area" class="skip-link">Pular para a receita</a>
+    <div id="anuncio-leitor" class="sr-only" aria-live="polite"></div>
 
-  <main id="conteudo-principal">
-    <h1>Título Principal da Página</h1>
-    <section aria-labelledby="sec-sobre">
-      <h2 id="sec-sobre">Sobre Nós</h2>
-      <p>Texto introdutório...</p>
-    </section>
-  </main>
+    <header>
+        <h1>Cozinha Acessível</h1>
+        <p>Navegue pelo teclado ou controle a receita usando a sua voz.</p>
 
-  <footer>
-    <p>&copy; 2026 Empresa Acessível.</p>
-  </footer>
-</body>
-</html>
+        <nav aria-label="Ferramentas de Acessibilidade" class="accessibility-bar">
+            <button type="button" onclick="alternarContraste()">Alto Contraste</button>
+            <button type="button" onclick="mudarFonte(2)">Aumentar Texto (A+)</button>
+            <button type="button" onclick="mudarFonte(-2)">Diminuir Texto (A-)</button>
+            <button type="button" onclick="pararVoz()">Silenciar Áudio</button>
+            <button type="button" id="btn-voz" onclick="alternarReconhecimentoVoz()">Ativar Comando de Voz</button>
+        </nav>
+
+        <div id="status-microfone" class="status-voz" role="status">
+            Microfone desligado. Clique em "Ativar Comando de Voz" e diga: "Ingredientes", "Próximo", "Anterior", "Repetir" ou "Parar".
+        </div>
+    </header>
+
+    <main>
+        <!-- Seletor de Receitas -->
+        <section aria-labelledby="titulo-catalogo">
+            <h2 id="titulo-catalogo">Escolher Receita</h2>
+            <label for="seletor-receita"><strong>Selecione uma receita da lista:</strong></label><br>
+            <select id="seletor-receita" onchange="carregarReceita(this.value)">
+                <option value="0">Bolo de Cenoura de Liquidificador (45 min)</option>
+                <option value="1">Arroz Branco Soltinho (20 min)</option>
+                <option value="2">Omelete Simples de Queijo (10 min)</option>
+            </select>
+        </section>
+
+        <!-- Área Dinâmica da Receita -->
+        <article id="receita-area">
+            <h2 id="receita-titulo"></h2>
+            <p id="receita-info"></p>
+
+            <!-- Ingredientes -->
+            <section aria-labelledby="titulo-ingredientes">
+                <h3 id="titulo-ingredientes">Ingredientes</h3>
+                <button type="button" onclick="lerIngredientes()">Ouvir Todos os Ingredientes</button>
+                <ul id="lista-ingredientes"></ul>
+            </section>
+
+            <!-- Modo de Preparo -->
+            <section aria-labelledby="titulo-preparo">
+                <h3 id="titulo-preparo">Modo de Preparo</h3>
+                <div class="controls-group">
+                    <button type="button" onclick="passoAnterior()">Passo Anterior</button>
+                    <button type="button" onclick="repetirPassoAtual()">Ouvir Passo Atual</button>
+                    <button type="button" onclick="proximoPasso()">Próximo Passo</button>
+                </div>
+                <ol id="lista-passos" style="margin-top: 20px;"></ol>
+            </section>
+
+            <!-- Timer Sonoro -->
+            <section aria-labelledby="titulo-timer">
+                <h3 id="titulo-timer">Timer Sonoro</h3>
+                <p id="timer-display" aria-live="off">00:00</p>
+                <div class="controls-group">
+                    <button type="button" onclick="iniciarTimer(1)">1 Minuto</button>
+                    <button type="button" onclick="iniciarTimer(15)">15 Minutos</button>
+                    <button type="button" onclick="iniciarTimer(40)">40 Minutos</button>
+                    <button type="button" onclick="pararTimer()">Cancelar Timer</button>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <script>
+        // Banco de Dados de Receitas
+        const receitas = [
+            {
+                titulo: "Bolo de Cenoura de Liquidificador",
+                tempo: "45 minutos",
+                rendimento: "8 porções",
+                ingredientes: [
+                    "3 cenouras médias descascadas e picadas",
+                    "4 ovos inteiros",
+                    "1 xícara de chá de óleo (240 ml)",
+                    "2 xícaras de chá de açúcar",
+                    "2 xícaras de chá de farinha de trigo",
+                    "1 colher de sopa de fermento em pó"
+                ],
+                passos: [
+                    "Pré-aqueça o forno a 180 graus e unte uma forma média com manteiga e farinha.",
+                    "No liquidificador, coloque as cenouras picadas, os ovos e o óleo. Bata por 3 minutos até virar um creme liso.",
+                    "Adicione o açúcar e bata por mais 1 minuto.",
+                    "Despeje a mistura em uma tigela grande e misture a farinha de trigo aos poucos. Por último, misture o fermento delicadamente.",
+                    "Despeje na forma untada e leve ao forno por 40 minutos."
+                ]
+            },
+            {
+                titulo: "Arroz Branco Soltinho",
+                tempo: "20 minutos",
+                rendimento: "4 porções",
+                ingredientes: [
+                    "1 xícara de chá de arroz branco lavado e escorrido",
+                    "2 xícaras de chá de água fervente",
+                    "1 dente de alho amassado",
+                    "1 colher de sopa de óleo ou azeite",
+                    "1 colher de chá rasa de sal"
+                ],
+                passos: [
+                    "Aqueça o óleo em uma panela média em fogo baixo e refogue o alho por 30 segundos sem deixar queimar.",
+                    "Adicione o arroz e o sal. Mexa bem por cerca de 1 minuto para envolver os grãos no óleo.",
+                    "Despeje com cuidado as 2 xícaras de água fervente.",
+                    "Deixe cozinhar em fogo baixo com a panela semi-tampada por cerca de 15 minutos, até a água secar completamente.",
+                    "Desligue o fogo, tampe totalmente a panela e deixe descansar por 5 minutos antes de servir."
+                ]
+            },
+            {
+                titulo: "Omelete Simples de Queijo",
+                tempo: "10 minutos",
+                rendimento: "1 porção",
+                ingredientes: [
+                    "2 ovos inteiros",
+                    "1 pitada de sal",
+                    "1 pitada de pimenta-do-reino a gosto",
+                    "2 fatias de queijo mussarela picadas",
+
+<link rel="stylesheet" href="style.css">
